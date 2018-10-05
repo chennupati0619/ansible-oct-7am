@@ -1,0 +1,20 @@
+---
+ - name: Installing Git  AND HTTPD On Uvuntu
+   apt:
+     name: "{{item}}"
+     state: present
+   with_items:
+     - git
+     - apache2
+   when: ansible_os_family == "Debian"
+ - name: StARTING aPACHE sERVER
+   service:
+     name: apache2
+     state: started
+     enabled: yes
+   when: ansible_os_family == "Debian"
+ - name: Coping Index.html on Ubuntu
+   copy:
+     src: ./index.html
+     dest: /var/www/html
+   when: ansible_os_family == "Debian"

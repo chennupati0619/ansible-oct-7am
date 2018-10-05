@@ -1,0 +1,7 @@
+---
+ - hosts: server3
+   become: true
+   gather_facts: no 
+   tasks:
+    - name: Installing Python On Ubuntu
+      raw: apt install python-minimal -y

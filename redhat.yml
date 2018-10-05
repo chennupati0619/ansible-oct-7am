@@ -1,0 +1,20 @@
+---
+ - name: Installing Git  AND HTTPD On rEDHAT
+   yum:
+     name: "{{item}}"
+     state: present
+   with_items:
+     - git
+     - httpd
+   when: ansible_os_family == "RedHat"
+ - name: StARTING aPACHE sERVER
+   service:
+     name: httpd
+     state: started
+     enabled: yes
+   when: ansible_os_family == "RedHat"
+ - name: Coping Index.html on Redhat
+   copy:
+     src: ./index.html
+     dest: /var/www/html
+   when: ansible_os_family == "RedHat"

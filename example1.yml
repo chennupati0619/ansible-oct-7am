@@ -1,0 +1,50 @@
+---
+ - hosts: all
+   become: true
+   tasks:
+     - name: Installing GIT, Docker, HTTPD
+       yum:
+         name: "{{item}}"
+         state: present
+       with_items:
+        - git
+        - docker
+        - httpd
+       when: ansible_os_family == "RedHat"
+     - name: Insytalling GiT aND APACHE2 ON Ubuntu
+       apt:
+         name: "{{item}}"
+         state: present
+       with_items:
+         - git
+         - apache2
+       when: ansible_os_family == "Debian"
+     - name: starting apache server
+       service:
+         name: "{{item}}"
+         state: started
+       with_items:
+         - httpd
+         - docker
+       when: ansible_os_family == "RedHat"
+     - name: starting apache server Ubuntu
+       service:
+        name: "{{item}}"
+        state: started
+       with_items:
+          - apache2
+       when: ansible_os_family == "Debian"
+     - name: Coping Index.html
+       copy:
+         src: ./index.html
+         dest: /var/www/html
+       notify: Restarting ApACHE server
+
+   handlers:
+     - name: Restarting ApACHE server
+       service:
+         name: "{{item}}"
+         state: restarted
+       with_items:
+         - httpd
+         - apache2
