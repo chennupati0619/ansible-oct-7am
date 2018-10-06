@@ -1,0 +1,70 @@
+---
+- hosts: server2
+  become: True
+  tasks:
+    - name: Installing Java-1.8.0
+      yum:
+        name: java-1.8.0-openjdk-devel
+        state: present
+    - name: Selecting Java-1.8.0 Version
+      alternatives:
+        name: java
+        path: /usr/lib/jvm/jre-1.8.0-openjdk.x86_64/bin/java
+    - name: Selecting Javac-1.8.0 Version
+      alternatives:
+        name: javac
+        path: /usr/lib/jvm/java-1.8.0-openjdk.x86_64/bin/javac
+    - name: Craeating Tomcat Group
+      group:
+        name: tomcat
+    - name: Craeating Tomcat User
+      user:
+        name: tomcat
+        group: tomcat
+        home: /usr/share/tomcat
+        createhome: no
+    - name: Downloading Tomcat Tar file
+      get_url:
+        url: http://www-eu.apache.org/dist/tomcat/tomcat-8/v8.5.34/bin/apache-tomcat-8.5.34.tar.gz
+        dest: /opt/apache-tomcat-8.5.34.tar.gz
+    - name: Extracting  Tomcat archive
+      command: chdir=/usr/share /bin/tar xvf /opt/apache-tomcat-8.5.34.tar.gz -C /opt/ creates=/opt/apache-tomcat-8.5.34
+    - name: Symlink install directory
+      file: src=/opt/apache-tomcat-8.5.34 path=/usr/share/tomcat state=link
+    - name: changing owner ship of tomcat
+      file: path=/usr/share/tomcat/ owner=tomcat group=tomcat state=directory recurse=yes
+    - name: coping tomcat script
+      copy:
+        src: ./tomcat.sh
+        dest: /etc/init.d/tomcat
+        mode: 0755
+      notify:
+        - Restarting tomcat
+    - name: Removing Restrictions
+      copy:
+        src: ./context.xml
+        dest: /usr/share/tomcat/webapps/manager/META-INF
+      notify:
+        - Restarting tomcat
+    - name: creating users to tomcat
+      copy:
+        src: ./tomcat-users.xml
+        dest: /usr/share/tomcat/conf
+      notify:
+        - Restarting tomcat 
+    - name: Coping War File
+      copy:
+        src: ../sample-app/target/myapp-0.0.3.war
+        dest: /usr/share/tomcat/webapps     
+      notify:
+        - Restarting tomcat
+    - name: starting tomcat
+      service:
+        name: tomcat
+        state: started
+        enabled: yes
+  handlers:
+    - name: Restarting tomcat
+      service: 
+        name: tomcat
+        state: restarted
