@@ -54,7 +54,7 @@
         - Restarting tomcat 
     - name: Coping War File
       copy:
-        src: ../sample-app/target/myapp-0.0.3.war
+        src: ../sample-app/target/myapp.war
         dest: /usr/share/tomcat/webapps     
       notify:
         - Restarting tomcat
