@@ -35,7 +35,7 @@
          state: present
          create: yes
        with_items: 
-         - {line: 'export M2_HOME=/opt/maven-{{maven_version}}'}
+         - {line: 'export M2_HOME=/opt/apache-maven-{{maven_version}}'}
          - {line: 'export M2=$M2_HOME/bin'}
          - {line: 'export PATH=$M2:$PATH'}
        notify:
